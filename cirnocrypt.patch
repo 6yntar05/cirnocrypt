@@ -1,0 +1,20 @@
+--- /usr/lib/initcpio/hooks/encrypt	2023-03-21 16:50:52.000000000 +0700
++++ hooks/encrypt	2023-07-21 16:26:14.382833007 +0700
+@@ -94,13 +94,15 @@
+             fi
+             # Ask for a passphrase
+             if [ ${dopassphrase} -gt 0 ]; then
++                string="A password is required to access the ${cryptname} volume:"
++
+                 if command -v plymouth >/dev/null 2>&1 && plymouth --ping 2>/dev/null; then
+                     plymouth ask-for-password \
+-                        --prompt="A password is required to access the ${cryptname} volume" \
++                        --prompt=$string \
+                         --command="cryptsetup open --type luks --key-file=- ${resolved} ${cryptname} ${cryptargs} ${CSQUIET}"
+                 else
+                     echo ""
+-                    echo "A password is required to access the ${cryptname} volume:"
++                    echo "$string"
+ 
+                     #loop until we get a real password
+                     while ! eval cryptsetup open --type luks ${resolved} ${cryptname} ${cryptargs} ${CSQUIET}; do

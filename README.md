@@ -1,5 +1,8 @@
 # cirnocrypt
 Change boring partition decrypt text to ascii cirno greeting <br>
+
+![cirno baka](greetings/ascii_cirno_example.png)
+
 ###### Only for ArchLinux with mkinitcpio for now
 
 ## Installing

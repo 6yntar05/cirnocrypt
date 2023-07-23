@@ -28,14 +28,14 @@ prepare_src() {
 
 patch_hook() {
     printf -- ' -> Patching encrypt hook to cirnocrypt: '
-    patch -u $(pwd)/.tmp/encrypt $(pwd)/cirnocrypt.patch > /dev/null
+    patch -u $(pwd)/.tmp/encrypt $(pwd)/cirnocrypt.patch
     printf -- '\033[0m\n'
     return $?
 }
 
 pick_greeting() {
     # TODO
-    patch -u $(pwd)/.tmp/encrypt $(pwd)/greetings/ascii_cirno.patch > /dev/null
+    patch -u $(pwd)/.tmp/encrypt $(pwd)/greetings/ascii_cirno.patch
     #printf -- '\033[0m\n'
     return
 }
@@ -51,6 +51,7 @@ install() {
     printf -- ' -> Installing: '
     cp $(pwd)/.tmp/mkinitcpio.conf /etc/mkinitcpio.conf & \
     cp $(pwd)/.tmp/encrypt /etc/initcpio/hooks/cirnocrypt
+    cp /usr/lib/initcpio/install/encrypt /etc/initcpio/install/cirnocrypt
     printf -- '\033[0m\n'
     return $?
 }

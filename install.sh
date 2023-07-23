@@ -1,45 +1,77 @@
 #!/bin/env bash
 
-#
-if [[ "$(whoami)" != "root" ]]; then
-  echo "ERROR: Run script as root"
-  exit 1
-fi
+root_check() {
+    if [[ "$(whoami)" != "root" ]]; then
+        echo "ERROR: Run script as root"
+        exit 1
+    fi
+}
 
-# TODO
-  # Picking greetings
+backup() {
+    printf -- ' -> Creating backup: '
+    mkdir -p $(pwd)/backup
+    mkdir -p $(pwd)/backup/etc/
 
-#
-printf "Backing up mkinitcpio.conf "
-mkdir -p $(pwd)/backup
-cp /etc/mkinitcpio.conf $(pwd)/backup/mkinitcpio.conf
-if [[ $? -eq 0 ]]; then printf '✓'; else printf '✗'; fi
-printf '\n'
+    cp /etc/mkinitcpio.conf $(pwd)/backup/etc/mkinitcpio.conf
+    printf -- '\033[0m\n'
+    return $?
+}
 
-#
-printf "Copying the original 'encrypt' hook "
-cp /usr/lib/initcpio/install/encrypt /etc/initcpio/install/cirnocrypt
-if [[ $? -eq 0 ]]; then printf '✓'; else printf '✗'; fi
-printf ' '
-cp /usr/lib/initcpio/hooks/encrypt /etc/initcpio/hooks/cirnocrypt
-if [[ $? -eq 0 ]]; then printf '✓'; else printf '✗'; fi
-printf '\n'
+prepare_src() {
+    printf -- ' -> Prepairing source files: '
+    mkdir -p $(pwd)/.tmp
+    cp $(pwd)/backup/etc/mkinitcpio.conf $(pwd)/.tmp/mkinitcpio.conf & \
+    cp /usr/lib/initcpio/hooks/encrypt $(pwd)/.tmp/encrypt
+    printf -- '\033[0m\n'
+    return $?
+}
 
-#
-printf "Patching 'encrypt' hook "
-patch -u /etc/initcpio/hooks/cirnocrypt cirnocrypt.patch > /dev/null
-if [[ $? -eq 0 ]]; then printf '✓'; else printf '✗'; fi
-printf ' '
-  # By choosen greeting
-patch -u /etc/initcpio/hooks/cirnocrypt greetings/ascii_cirno.patch > /dev/null
-if [[ $? -eq 0 ]]; then printf '✓'; else printf '✗'; fi
-printf '\n'
+patch_hook() {
+    printf -- ' -> Patching encrypt hook to cirnocrypt: '
+    patch -u $(pwd)/.tmp/encrypt $(pwd)/cirnocrypt.patch > /dev/null
+    printf -- '\033[0m\n'
+    return $?
+}
 
-# TODO:
-  #printf "Patching mkinitcpio.conf"
-  # rg HOOK # sed 's/encrypt/cirnocrypt/g' install.sh
+pick_greeting() {
+    # TODO
+    patch -u $(pwd)/.tmp/encrypt $(pwd)/greetings/ascii_cirno.patch > /dev/null
+    #printf -- '\033[0m\n'
+    return
+}
 
-  # Updating mkinitcpio
-  #mkinitcpio -P
+patch_mkinitcpio() {
+    printf -- ' -> Patching mkinitcpio (encrypt -> cirnocrypt): '
+    sed -i '/HOOKS=(/s/\bencrypt/cirnocrypt/g' $(pwd)/.tmp/mkinitcpio.conf
+    printf -- '\033[0m\n'
+    return $?
+}
+
+install() {
+    printf -- ' -> Installing: '
+    cp $(pwd)/.tmp/mkinitcpio.conf /etc/mkinitcpio.conf & \
+    cp $(pwd)/.tmp/encrypt /etc/initcpio/hooks/cirnocrypt
+    printf -- '\033[0m\n'
+    return $?
+}
+
+root_check
+
+backup
+prepare_src
+
+patch_hook
+pick_greeting
+patch_mkinitcpio
+
+install
+
+# Updating initcpio
+/usr/bin/mkinitcpio -P
+
+#Cleaning up
+/usr/bin/rm -f $(pwd)/.tmp/mkinitcpio.conf
+/usr/bin/rm -f $(pwd)/.tmp/encrypt
+/usr/bin/rmdir $(pwd)/.tmp 2> /dev/null
 
 exit 0

@@ -70,7 +70,6 @@ install() {
 }
 
 warning
-exit 2
 root_check
 
 backup

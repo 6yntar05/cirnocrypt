@@ -1,5 +1,18 @@
 #!/bin/env bash
 
+warning() {
+    echo "WARNING! Using this script will modify /etc/mkinitcpio.conf, potentially breaking initcpio."
+    echo "In case of failure, chroot into the system and restore the mkinitcpio backup or replace the 'cirnocrypt' module with 'encrypt'"
+
+    read -p "Type 'y' to continue: " -r
+    printf "\n"
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+        echo "Canceled"
+        exit 1
+    fi
+}
+
 root_check() {
     if [[ "$(whoami)" != "root" ]]; then
         echo "ERROR: Run script as root"
@@ -56,6 +69,8 @@ install() {
     return $?
 }
 
+warning
+exit 2
 root_check
 
 backup

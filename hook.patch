@@ -3,8 +3,8 @@
              # Ask for a passphrase
              if [ ${dopassphrase} -gt 0 ]; then
 +
-+                _GREETING="A password is required to access the ${cryptname} volume:"
-+                _GREETING_PLYMOUTH="A password is required to access the ${cryptname} volume:"
++                _GREETING=$(cat /cirnocrypt)
++                _GREETING_PLYMOUTH="$_GREETING"
 +
                  if command -v plymouth >/dev/null 2>&1 && plymouth --ping 2>/dev/null; then
                      plymouth ask-for-password \

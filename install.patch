@@ -1,0 +1,9 @@
+@@ -1,6 +1,8 @@
+ #!/bin/bash
+ 
+ build() {
++    add_file "/etc/initcpio/cirnocrypt" "/cirnocrypt" # Greeting for cirnocrypt
++
+     local mod
+ 
+     add_module 'dm-crypt'

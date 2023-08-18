@@ -1,9 +1,16 @@
-@@ -94,13 +94,17 @@
+--- /usr/lib/initcpio/hooks/encrypt	2023-03-21 16:50:52.000000000 +0700
++++ /etc/initcpio/hooks/cirnocrypt	2023-08-18 12:36:30.598339298 +0700
+@@ -94,13 +94,22 @@
              fi
              # Ask for a passphrase
              if [ ${dopassphrase} -gt 0 ]; then
-+
-+                _GREETING=$(cat /cirnocrypt)
++                
++                if cat /cirnocrypt > /dev/null; then
++                    _GREETING=$(cat /cirnocrypt)
++                else
++                    _GREETING="Unable to read greeting! Write ascii greeting to /etc/initcpio/cirnocrypt and run mkinitcpio.conf"
++                fi
++                    
 +                _GREETING_PLYMOUTH="$_GREETING"
 +
                  if command -v plymouth >/dev/null 2>&1 && plymouth --ping 2>/dev/null; then

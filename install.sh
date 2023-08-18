@@ -154,10 +154,12 @@ mkinitcpio() {
 }
 clean() {
     printf -- " ${_arrow} Cleaning up${_clear}\n"
+    /usr/bin/rm -f $(pwd)/.tmp/hook/encrypt.orig
     if ! {
         /usr/bin/rm -f $(pwd)/.tmp/mkinitcpio.conf &&
         /usr/bin/rm -f $(pwd)/.tmp/hook/encrypt &&
         /usr/bin/rm -f $(pwd)/.tmp/install/encrypt &&
+        /usr/bin/rm -f $(pwd)/.tmp/greeting &&
         /usr/bin/rmdir $(pwd)/.tmp/hook $(pwd)/.tmp/install/ 2> /dev/null &&
         /usr/bin/rmdir $(pwd)/.tmp 2> /dev/null
     }; then

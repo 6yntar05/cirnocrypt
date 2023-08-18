@@ -116,8 +116,8 @@ make_greeting() {
         echo "Selected greeting '$selected_greeting' not found."
     fi
 }
-install() {
-    printf -- " ${_arrow} Installing${_clear}\n"
+copy() {
+    printf -- " ${_arrow} Copying files${_clear}\n"
     if ! {
         cp $(pwd)/.tmp/hook/encrypt /etc/initcpio/hooks/cirnocrypt &&
         cp $(pwd)/.tmp/install/encrypt /etc/initcpio/install/cirnocrypt &&
@@ -133,6 +133,22 @@ install() {
         echo "Attempt to restore from backup"
         latest_backup=$(ls -td $(pwd)/backup/* | head -n 1)
         cp $latest_backup/etc/mkinitcpio.conf /etc/mkinitcpio.conf
+        exit 1
+    fi
+
+    FILES=("/etc/initcpio/cirnocrypt" "/etc/initcpio/hooks/cirnocrypt" "/etc/initcpio/install/cirnocrypt")
+    for FILE in "${FILES[@]}"; do
+        if ! test -f "$FILE"; then
+            echo "Error: $FILE does not exist."
+            exit 1
+        fi
+    done
+}
+mkinitcpio() {
+    printf -- " ${_arrow} Genering initcpio${_clear}\n"
+    if ! /usr/bin/mkinitcpio -P; then
+        echo "Error: Errors occurred while creating initcpio!"
+        echo "Check the cause and restore from backup if needed"
         exit 1
     fi
 }
@@ -160,10 +176,10 @@ prepare_src
 patch_hook
 patch_install
 patch_mkinitcpio
-make_greeting
 
-install
-/usr/bin/mkinitcpio -P
+make_greeting
+copy
+mkinitcpio
 clean
 
 exit 0
